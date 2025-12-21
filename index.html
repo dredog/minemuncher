@@ -8,465 +8,87 @@
   <meta name="apple-mobile-web-app-title" content="Mine Muncher">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#1a0a1a">
-  <meta name="description" content="A Minecraft-themed Pac-Man game">
-  
   <title>Mine Muncher</title>
-  
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  
   <style>
-    * {
-      margin: 0; padding: 0; box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    html, body, #root {
-      width: 100%; height: 100%;
-      overflow: hidden;
-      touch-action: manipulation;
-    }
-    body {
-      font-family: monospace;
-      background: linear-gradient(180deg, #1a0a1a 0%, #2d1a2d 50%, #0d0d0d 100%);
-    }
-    @font-face {
-      font-family: 'Press Start 2P';
-      src: url('https://fonts.gstatic.com/s/pressstart2p/v15/e3t4euO8T-267oIAQAu6jDQyK3nVivM.woff2') format('woff2');
-      font-display: swap;
-    }
-    @keyframes pulse {
-      from { transform: scale(1); opacity: 1; }
-      to { transform: scale(1.2); opacity: 0.8; }
-    }
-    input {
-      -webkit-user-select: text;
-      user-select: text;
-    }
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+    html,body,#root{width:100%;height:100%;overflow:hidden;touch-action:manipulation}
+    body{font-family:monospace;background:linear-gradient(180deg,#1a0a1a 0%,#2d1a2d 50%,#0d0d0d 100%)}
+    @font-face{font-family:'Press Start 2P';src:url('https://fonts.gstatic.com/s/pressstart2p/v15/e3t4euO8T-267oIAQAu6jDQyK3nVivM.woff2') format('woff2');font-display:swap}
+    @keyframes pulse{from{transform:scale(1);opacity:1}to{transform:scale(1.2);opacity:0.8}}
+    @keyframes deathFlash{0%,100%{opacity:1}50%{opacity:0.3}}
+    input{-webkit-user-select:text;user-select:text}
   </style>
 </head>
 <body>
   <div id="root"></div>
-  
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script>
-    const { useState, useEffect, useCallback, useRef } = React;
-    const e = React.createElement;
+const{useState:S,useEffect:E,useCallback:C,useRef:R}=React,e=React.createElement,CS=32,TS={1:250,2:235,3:220,4:205,5:190,6:175,7:160,8:145,9:130,10:115},W=1,D=2,P=3,Y=0,
+LVL=[
+{map:[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,2,2,2,2,2,2,2,2,2,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1],[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],[1,2,2,2,2,2,2,0,0,0,2,2,2,2,2,2,1],[1,2,2,2,2,2,2,0,0,0,2,2,2,2,2,2,1],[1,2,2,2,2,2,2,0,0,0,2,2,2,2,2,2,1],[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],[1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,2,2,2,2,2,2,2,2,2,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],enemies:[{type:'villager',x:8,y:7}],start:{x:1,y:1}},
+{map:[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,1,2,1,2,2,1,2,2,1,2,1,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1],[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],[1,2,1,2,1,2,1,0,0,0,1,2,1,2,1,2,1],[1,2,2,2,2,2,2,0,0,0,2,2,2,2,2,2,1],[1,2,1,2,1,2,1,0,0,0,1,2,1,2,1,2,1],[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],[1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,1,2,1,2,2,1,2,2,1,2,1,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],enemies:[{type:'villager',x:8,y:7}],start:{x:1,y:1}},
+{map:[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,2,2,2,2,2,2,2,2,2,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,2,2,1,1,1,2,2,1,2,1,2,1],[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],[1,2,2,2,1,2,1,0,0,0,1,2,1,2,2,2,1],[1,2,2,2,2,2,2,0,0,0,2,2,2,2,2,2,1],[1,2,2,2,1,2,1,0,0,0,1,2,1,2,2,2,1],[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],[1,2,1,2,1,2,2,1,1,1,2,2,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,2,2,2,2,2,2,2,2,2,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],enemies:[{type:'dragon',x:8,y:7}],start:{x:1,y:1}},
+{map:[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,1,3,1,3,1,2,2,2,2,2,1],[1,2,1,1,1,2,1,2,2,2,1,2,1,1,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,1,2,1,1,1,2,1,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,2,1,2,1,0,0,0,1,2,1,2,1,1,1],[1,3,2,2,2,2,0,0,0,0,0,2,2,2,2,3,1],[1,1,1,2,1,2,1,0,0,0,1,2,1,2,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,1,2,1,1,1,2,1,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,1,1,2,1,2,2,2,1,2,1,1,1,2,1],[1,2,2,2,2,2,1,3,1,3,1,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],enemies:[{type:'villager',x:8,y:7},{type:'enderman',x:7,y:7}],start:{x:1,y:1}},
+{map:[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,1,2,1,1,2,1,2,1,1,2,1,1,2,1],[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],[1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,2,1,2,1,0,0,0,1,2,1,2,1,1,1],[1,2,2,2,2,2,0,0,0,0,0,2,2,2,2,2,1],[1,1,1,2,1,2,1,0,0,0,1,2,1,2,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1],[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],[1,2,1,1,2,1,1,2,1,2,1,1,2,1,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],enemies:[{type:'villager',x:8,y:7},{type:'dragon',x:7,y:7}],start:{x:1,y:1}},
+{map:[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,1,3,1,2,2,2,2,2,2,1],[1,2,1,1,1,2,1,1,2,1,1,2,1,1,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,1,2,1,2,1,2,1,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,2,1,2,1,0,0,0,1,2,1,2,1,1,1],[1,3,2,2,2,2,0,0,0,0,0,2,2,2,2,3,1],[1,1,1,2,1,2,1,0,0,0,1,2,1,2,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,1,2,1,2,1,2,1,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,1,1,2,1,1,2,1,1,2,1,1,1,2,1],[1,2,2,2,2,2,2,1,3,1,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],enemies:[{type:'villager',x:8,y:7},{type:'enderman',x:7,y:7},{type:'dragon',x:9,y:7}],start:{x:1,y:1}},
+{map:[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,3,1,1,2,1,1,2,1,2,1,1,2,1,1,3,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1],[1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1],[1,1,1,2,1,1,1,0,0,0,1,1,1,2,1,1,1],[0,2,2,2,2,2,0,0,0,0,0,2,2,2,2,2,0],[1,1,1,2,1,1,1,0,0,0,1,1,1,2,1,1,1],[1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1],[1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,3,1,1,2,1,1,2,1,2,1,1,2,1,1,3,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],enemies:[{type:'villager',x:8,y:7},{type:'enderman',x:6,y:7},{type:'enderman',x:10,y:7},{type:'dragon',x:8,y:6}],start:{x:1,y:1}},
+{map:[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,1,2,2,3,2,2,1,2,2,2,2,1],[1,2,1,1,2,1,2,1,1,1,2,1,2,1,1,2,1],[1,2,1,2,2,2,2,2,2,2,2,2,2,2,1,2,1],[1,2,2,2,1,1,2,1,2,1,2,1,1,2,2,2,1],[1,1,1,2,2,2,2,2,2,2,2,2,2,2,1,1,1],[1,2,2,2,1,1,1,0,0,0,1,1,1,2,2,2,1],[1,3,1,2,1,0,0,0,0,0,0,0,1,2,1,3,1],[1,2,2,2,1,1,1,0,0,0,1,1,1,2,2,2,1],[1,1,1,2,2,2,2,2,2,2,2,2,2,2,1,1,1],[1,2,2,2,1,1,2,1,2,1,2,1,1,2,2,2,1],[1,2,1,2,2,2,2,2,2,2,2,2,2,2,1,2,1],[1,2,1,1,2,1,2,1,1,1,2,1,2,1,1,2,1],[1,2,2,2,2,1,2,2,3,2,2,1,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],enemies:[{type:'villager',x:8,y:7},{type:'enderman',x:6,y:7},{type:'enderman',x:10,y:7},{type:'dragon',x:7,y:7},{type:'dragon',x:9,y:7}],start:{x:1,y:1}},
+{map:[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,1,1,2,1,1,1,1,1,2,1,1,1,2,1],[1,3,1,2,2,2,2,2,2,2,2,2,2,2,1,3,1],[1,2,1,2,1,1,2,1,2,1,2,1,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,2,1,0,0,0,1,2,1,1,1,1,1],[0,2,2,2,2,2,0,0,0,0,0,2,2,2,2,2,0],[1,1,1,1,1,2,1,0,0,0,1,2,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,1,2,1,2,1,2,1,1,2,1,2,1],[1,3,1,2,2,2,2,2,2,2,2,2,2,2,1,3,1],[1,2,1,1,1,2,1,1,1,1,1,2,1,1,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],enemies:[{type:'enderman',x:5,y:7},{type:'enderman',x:11,y:7},{type:'dragon',x:7,y:7},{type:'dragon',x:8,y:7},{type:'dragon',x:9,y:7}],start:{x:1,y:1}},
+{map:[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,1,1,1,2,1,1,1,2,1,1,1,1,2,1],[1,3,1,2,2,2,2,2,2,2,2,2,2,2,1,3,1],[1,2,1,2,1,1,1,2,1,2,1,1,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,2,1,0,0,0,1,2,1,1,1,1,1],[0,2,2,2,2,2,0,0,0,0,0,2,2,2,2,2,0],[1,1,1,1,1,2,1,0,0,0,1,2,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,1,1,2,1,2,1,1,1,2,1,2,1],[1,3,1,2,2,2,2,2,2,2,2,2,2,2,1,3,1],[1,2,1,1,1,1,2,1,1,1,2,1,1,1,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],enemies:[{type:'dragon',x:6,y:7},{type:'dragon',x:7,y:7},{type:'dragon',x:8,y:7},{type:'dragon',x:9,y:7},{type:'dragon',x:10,y:7}],start:{x:1,y:1}}
+],MW=17,MH=15,DM=["💀 An Enderman got you!","🐉 The Dragon strikes!","👤 Villager's revenge!","💀 You were slain!","⚡ Too slow!","🎮 Try again!"];
 
-    const CELL_SIZE = 32;
-    const TICK_SPEEDS = { 1: 240, 2: 220, 3: 200, 4: 180, 5: 160, 6: 140, 7: 120 };
-    const WALL = 1, DOT = 2, POWER = 3, EMPTY = 0;
+function Game(){
+const[cl,setCl]=S(0),[sl,setSl]=S(1),[gm,setGm]=S([]),[st,setSt]=S({x:1,y:1}),[sd,setSd]=S({x:0,y:0}),[en,setEn]=S([]),[sc,setSc]=S(0),[lv,setLv]=S(3),[go,setGo]=S(false),[gs,setGs]=S(false),[ip,setIp]=S(false),[pm,setPm]=S(false),[pt,setPt]=S(null),[mo,setMo]=S(true),[sr,setSr]=S(false),[sl2,setSl2]=S(false),[sn,setSn]=S(false),[pn,setPn]=S(''),[ps,setPs]=S(0),[wt,setWt]=S(true),[shd,setShd]=S(false),[dm,setDm]=S(''),
+[lb,setLb]=S(()=>{try{return JSON.parse(localStorage.getItem('mm-lb'))||[]}catch{return[]}});
+const tsR=R({x:0,y:0}),ndR=R({x:0,y:0}),sdR=R({x:0,y:0}),niR=R(null);
 
-    const LEVELS = [
-      // Level 1 - Super easy
-      { map: [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,2,2,2,2,2,2,2,2,2,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1],[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],[1,2,2,2,2,2,2,0,0,0,2,2,2,2,2,2,1],[1,2,2,2,2,2,2,0,0,0,2,2,2,2,2,2,1],[1,2,2,2,2,2,2,0,0,0,2,2,2,2,2,2,1],[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],[1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,2,2,2,2,2,2,2,2,2,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]], enemies: [{ type: 'villager', x: 8, y: 7 }], steveStart: { x: 1, y: 1 } },
-      // Level 2 - Easy
-      { map: [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,1,2,1,2,2,1,2,2,1,2,1,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1],[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],[1,2,1,2,1,2,1,0,0,0,1,2,1,2,1,2,1],[1,2,2,2,2,2,2,0,0,0,2,2,2,2,2,2,1],[1,2,1,2,1,2,1,0,0,0,1,2,1,2,1,2,1],[1,3,2,2,2,2,2,2,2,2,2,2,2,2,2,3,1],[1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,1,2,1,2,2,1,2,2,1,2,1,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]], enemies: [{ type: 'villager', x: 8, y: 7 }], steveStart: { x: 1, y: 1 } },
-      // Level 3 - Easy-medium
-      { map: [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,1,3,1,3,1,2,2,2,2,2,1],[1,2,1,1,1,2,1,2,2,2,1,2,1,1,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,1,2,1,1,1,2,1,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,2,1,2,1,0,0,0,1,2,1,2,1,1,1],[1,3,2,2,2,2,0,0,0,0,0,2,2,2,2,3,1],[1,1,1,2,1,2,1,0,0,0,1,2,1,2,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,1,2,1,1,1,2,1,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,1,1,2,1,2,2,2,1,2,1,1,1,2,1],[1,2,2,2,2,2,1,3,1,3,1,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]], enemies: [{ type: 'villager', x: 8, y: 7 },{ type: 'enderman', x: 7, y: 7 }], steveStart: { x: 1, y: 1 } },
-      // Level 4 - Medium
-      { map: [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,1,3,1,2,2,2,2,2,2,1],[1,2,1,1,1,2,1,1,2,1,1,2,1,1,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,1,2,1,2,1,2,1,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,2,1,2,1,0,0,0,1,2,1,2,1,1,1],[1,3,2,2,2,2,0,0,0,0,0,2,2,2,2,3,1],[1,1,1,2,1,2,1,0,0,0,1,2,1,2,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,1,2,1,2,1,2,1,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,1,1,2,1,1,2,1,1,2,1,1,1,2,1],[1,2,2,2,2,2,2,1,3,1,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]], enemies: [{ type: 'villager', x: 8, y: 7 },{ type: 'enderman', x: 7, y: 7 },{ type: 'enderman', x: 9, y: 7 }], steveStart: { x: 1, y: 1 } },
-      // Level 5 - Medium-Hard
-      { map: [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,3,1,1,2,1,1,2,1,2,1,1,2,1,1,3,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1],[1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1],[1,1,1,2,1,1,1,0,0,0,1,1,1,2,1,1,1],[0,2,2,2,2,2,0,0,0,0,0,2,2,2,2,2,0],[1,1,1,2,1,1,1,0,0,0,1,1,1,2,1,1,1],[1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1],[1,2,1,2,1,2,1,1,1,1,1,2,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,3,1,1,2,1,1,2,1,2,1,1,2,1,1,3,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]], enemies: [{ type: 'villager', x: 8, y: 7 },{ type: 'enderman', x: 6, y: 7 },{ type: 'enderman', x: 10, y: 7 }], steveStart: { x: 1, y: 1 } },
-      // Level 6 - Hard
-      { map: [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,1,2,2,3,2,2,1,2,2,2,2,1],[1,2,1,1,2,1,2,1,1,1,2,1,2,1,1,2,1],[1,2,1,2,2,2,2,2,2,2,2,2,2,2,1,2,1],[1,2,2,2,1,1,2,1,2,1,2,1,1,2,2,2,1],[1,1,1,2,2,2,2,2,2,2,2,2,2,2,1,1,1],[1,2,2,2,1,1,1,0,0,0,1,1,1,2,2,2,1],[1,3,1,2,1,0,0,0,0,0,0,0,1,2,1,3,1],[1,2,2,2,1,1,1,0,0,0,1,1,1,2,2,2,1],[1,1,1,2,2,2,2,2,2,2,2,2,2,2,1,1,1],[1,2,2,2,1,1,2,1,2,1,2,1,1,2,2,2,1],[1,2,1,2,2,2,2,2,2,2,2,2,2,2,1,2,1],[1,2,1,1,2,1,2,1,1,1,2,1,2,1,1,2,1],[1,2,2,2,2,1,2,2,3,2,2,1,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]], enemies: [{ type: 'villager', x: 8, y: 7 },{ type: 'enderman', x: 6, y: 7 },{ type: 'enderman', x: 10, y: 7 },{ type: 'dragon', x: 8, y: 6 }], steveStart: { x: 1, y: 1 } },
-      // Level 7 - Expert
-      { map: [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,1,1,2,1,1,1,1,1,2,1,1,1,2,1],[1,3,1,2,2,2,2,2,2,2,2,2,2,2,1,3,1],[1,2,1,2,1,1,2,1,2,1,2,1,1,2,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,2,1,0,0,0,1,2,1,1,1,1,1],[0,2,2,2,2,2,0,0,0,0,0,2,2,2,2,2,0],[1,1,1,1,1,2,1,0,0,0,1,2,1,1,1,1,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,2,1,2,1,1,2,1,2,1,2,1,1,2,1,2,1],[1,3,1,2,2,2,2,2,2,2,2,2,2,2,1,3,1],[1,2,1,1,1,2,1,1,1,1,1,2,1,1,1,2,1],[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]], enemies: [{ type: 'villager', x: 8, y: 7 },{ type: 'enderman', x: 5, y: 7 },{ type: 'enderman', x: 11, y: 7 },{ type: 'dragon', x: 7, y: 7 },{ type: 'dragon', x: 9, y: 7 }], steveStart: { x: 1, y: 1 } },
-    ];
+const chkLb=C(fs=>{if(lb.length<10||fs>(lb[lb.length-1]?.score||0)){setPs(fs);setSn(true);setTimeout(()=>niR.current?.focus(),100);return true}return false},[lb]);
+const saveLb=C((n,s)=>{const ne={name:n.trim()||'Anon',score:s,date:new Date().toLocaleDateString()};const nl=[...lb,ne].sort((a,b)=>b.score-a.score).slice(0,10);setLb(nl);localStorage.setItem('mm-lb',JSON.stringify(nl));setSn(false);setPn('')},[lb]);
+const initLv=C((i,rp=false)=>{const l=LVL[i];if(!rp)setGm(l.map.map(r=>[...r]));setSt({...l.start});setSd({x:0,y:0});sdR.current={x:0,y:0};ndR.current={x:0,y:0};setEn(l.enemies.map((x,j)=>({...x,sx:x.x,sy:x.y,id:j,sc:false,dir:{x:0,y:0}})));setPm(false);setWt(true);if(pt)clearTimeout(pt)},[pt]);
+const startG=(l=sl)=>{setCl(l-1);setSc(0);setLv(3);setGo(false);setGs(true);setIp(false);setSr(false);setSl2(false);setShd(false);initLv(l-1)};
+const startR=()=>{setWt(false);setShd(false)};
+const isV=C((x,y,m)=>{if(y<0||y>=MH)return false;return m[y][(x+MW)%MW]!==W},[]);
+const cntD=C(m=>m.flat().filter(c=>c===D||c===P).length,[]);
+const hDir=C(d=>{if(!gs||go||ip||wt)return;ndR.current=d},[gs,go,ip,wt]);
+const hTS=ev=>{if(!gs||go)return;tsR.current={x:ev.touches[0].clientX,y:ev.touches[0].clientY}};
+const hTE=ev=>{if(!gs||go||ip||wt)return;const dx=ev.changedTouches[0].clientX-tsR.current.x,dy=ev.changedTouches[0].clientY-tsR.current.y;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>30)hDir(dx>0?{x:1,y:0}:{x:-1,y:0});else if(Math.abs(dy)>30)hDir(dy>0?{x:0,y:1}:{x:0,y:-1})};
 
-    function Game() {
-      const [currentLevel, setCurrentLevel] = useState(0);
-      const [startingLevel, setStartingLevel] = useState(1);
-      const [gameMap, setGameMap] = useState([]);
-      const [steve, setSteve] = useState({ x: 1, y: 1 });
-      const [steveDir, setSteveDir] = useState({ x: 0, y: 0 });
-      const [enemies, setEnemies] = useState([]);
-      const [score, setScore] = useState(0);
-      const [lives, setLives] = useState(3);
-      const [gameOver, setGameOver] = useState(false);
-      const [gameStarted, setGameStarted] = useState(false);
-      const [isPaused, setIsPaused] = useState(false);
-      const [powerMode, setPowerMode] = useState(false);
-      const [powerTimer, setPowerTimer] = useState(null);
-      const [mouthOpen, setMouthOpen] = useState(true);
-      const [showRules, setShowRules] = useState(false);
-      const [showLeaderboard, setShowLeaderboard] = useState(false);
-      const [showNameEntry, setShowNameEntry] = useState(false);
-      const [playerName, setPlayerName] = useState('');
-      const [pendingScore, setPendingScore] = useState(0);
-      const [leaderboard, setLeaderboard] = useState(() => {
-        try { return JSON.parse(localStorage.getItem('minemuncher-leaderboard')) || []; } catch { return []; }
-      });
-      
-      const touchStartRef = useRef({ x: 0, y: 0 });
-      const nextDirRef = useRef({ x: 0, y: 0 });
-      const steveDirRef = useRef({ x: 0, y: 0 });
-      const nameInputRef = useRef(null);
+E(()=>{const onK=ev=>{if(sn)return;if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();if(!gs)startG();else if(wt&&!go)startR();else if(go)startG();return}if(ev.key==='Escape'){ev.preventDefault();if(sr)setSr(false);else if(sl2)setSl2(false);else if(gs&&!go&&!wt)setIp(p=>!p);return}if((ev.key==='p'||ev.key==='P')&&gs&&!go&&!wt){ev.preventDefault();setIp(p=>!p);return}const dirs={ArrowUp:{x:0,y:-1},w:{x:0,y:-1},ArrowDown:{x:0,y:1},s:{x:0,y:1},ArrowLeft:{x:-1,y:0},a:{x:-1,y:0},ArrowRight:{x:1,y:0},d:{x:1,y:0}};if(dirs[ev.key]){ev.preventDefault();hDir(dirs[ev.key])}};window.addEventListener('keydown',onK);return()=>window.removeEventListener('keydown',onK)},[gs,go,hDir,sr,sl2,sn,wt]);
 
-      const mapWidth = 17, mapHeight = 15;
+const mvEn=C((m,sp,cpm)=>{setEn(pr=>pr.map(x=>{const ds=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];const vd=ds.filter(d=>{const nx=(x.x+d.x+MW)%MW,ny=x.y+d.y;return isV(nx,ny,m)&&!(d.x===-x.dir.x&&d.y===-x.dir.y)});if(vd.length===0){const any=ds.filter(d=>isV((x.x+d.x+MW)%MW,x.y+d.y,m));if(any.length===0)return x;const d=any[Math.floor(Math.random()*any.length)];return{...x,x:(x.x+d.x+MW)%MW,y:x.y+d.y,dir:d,sc:cpm}}let ch;if(cpm){vd.sort((a,b)=>{const dA=Math.abs(x.x+a.x-sp.x)+Math.abs(x.y+a.y-sp.y),dB=Math.abs(x.x+b.x-sp.x)+Math.abs(x.y+b.y-sp.y);return dB-dA});ch=vd[0]}else{if(Math.random()<0.7){vd.sort((a,b)=>{const dA=Math.abs(x.x+a.x-sp.x)+Math.abs(x.y+a.y-sp.y),dB=Math.abs(x.x+b.x-sp.x)+Math.abs(x.y+b.y-sp.y);return dA-dB});ch=vd[0]}else ch=vd[Math.floor(Math.random()*vd.length)]}return{...x,x:(x.x+ch.x+MW)%MW,y:x.y+ch.y,dir:ch,sc:cpm}}))},[isV]);
 
-      const checkLeaderboard = useCallback((finalScore) => {
-        if (leaderboard.length < 10 || finalScore > (leaderboard[leaderboard.length - 1]?.score || 0)) {
-          setPendingScore(finalScore);
-          setShowNameEntry(true);
-          setTimeout(() => nameInputRef.current?.focus(), 100);
-          return true;
-        }
-        return false;
-      }, [leaderboard]);
+E(()=>{if(!gs||go||ip||wt)return;const sp=TS[sl]||200;const lp=setInterval(()=>{setMo(m=>!m);setSt(pr=>{let nd=sdR.current;const tx=(pr.x+ndR.current.x+MW)%MW,ty=pr.y+ndR.current.y;if((ndR.current.x||ndR.current.y)&&isV(tx,ty,gm)){nd=ndR.current;sdR.current=nd;setSd(nd)}const nx=(pr.x+nd.x+MW)%MW,ny=pr.y+nd.y;if(!isV(nx,ny,gm))return pr;if(gm[ny][nx]===D){setGm(m=>{const nm=m.map(r=>[...r]);nm[ny][nx]=Y;return nm});setSc(s=>s+10)}if(gm[ny][nx]===P){setGm(m=>{const nm=m.map(r=>[...r]);nm[ny][nx]=Y;return nm});setSc(s=>s+50);setPm(true);if(pt)clearTimeout(pt);setPt(setTimeout(()=>setPm(false),8000))}return{x:nx,y:ny}});if(Math.random()<0.6)mvEn(gm,st,pm)},sp);return()=>clearInterval(lp)},[gs,go,ip,wt,gm,st,pm,isV,mvEn,sl,pt]);
 
-      const saveToLeaderboard = useCallback((name, scoreVal) => {
-        const entry = { name: name.trim() || 'Anonymous', score: scoreVal, date: new Date().toLocaleDateString() };
-        const newLB = [...leaderboard, entry].sort((a, b) => b.score - a.score).slice(0, 10);
-        setLeaderboard(newLB);
-        localStorage.setItem('minemuncher-leaderboard', JSON.stringify(newLB));
-        setShowNameEntry(false);
-        setPlayerName('');
-      }, [leaderboard]);
+E(()=>{if(!gs||go||wt)return;for(const x of en){if(x.x===st.x&&x.y===st.y){if(pm){setSc(s=>s+200);setEn(p=>p.map(z=>z.id===x.id?{...z,x:z.sx,y:z.sy}:z))}else{setLv(l=>{const nl=l-1;if(nl<=0){setGo(true);chkLb(sc)}else{setDm(DM[Math.floor(Math.random()*DM.length)]);setShd(true);initLv(cl,true)}return nl})}}}}if(cntD(gm)===0){const nx=cl+1;if(nx<LVL.length){setCl(nx);initLv(nx)}else{const fs=sc+1000;setGo(true);setSc(fs);chkLb(fs)}}},[st,en,gm,pm,gs,go,wt,cl,initLv,cntD,sc,chkLb]);
 
-      const initLevel = useCallback((idx) => {
-        const level = LEVELS[idx];
-        setGameMap(level.map.map(r => [...r]));
-        setSteve({ ...level.steveStart });
-        setSteveDir({ x: 0, y: 0 });
-        steveDirRef.current = { x: 0, y: 0 };
-        nextDirRef.current = { x: 0, y: 0 };
-        setEnemies(level.enemies.map((en, i) => ({ ...en, startX: en.x, startY: en.y, id: i, scared: false, dir: { x: 0, y: 0 } })));
-        setPowerMode(false);
-        if (powerTimer) clearTimeout(powerTimer);
-      }, [powerTimer]);
+const rSt=()=>{const rt=sd.x===1?0:sd.x===-1?180:sd.y===1?90:sd.y===-1?-90:0;return e('div',{style:{position:'absolute',left:st.x*CS,top:st.y*CS,width:CS,height:CS,transition:'left 0.1s,top 0.1s',zIndex:10}},e('div',{style:{width:CS-4,height:CS-4,margin:2,background:'#c69c6d',border:'2px solid #8b6914',borderRadius:2,position:'relative',transform:`rotate(${rt}deg)`,boxShadow:'inset 2px 2px 0 rgba(255,255,255,0.3)'}},[e('div',{key:'h',style:{position:'absolute',top:0,left:0,right:0,height:'35%',background:'#3b2210',borderRadius:'2px 2px 0 0'}}),e('div',{key:'e1',style:{position:'absolute',top:'40%',left:'15%',width:'20%',height:'20%',background:'#fff'}},e('div',{style:{position:'absolute',right:0,top:0,width:'50%',height:'100%',background:'#4a7ebf'}})),e('div',{key:'e2',style:{position:'absolute',top:'40%',right:'15%',width:'20%',height:'20%',background:'#fff'}},e('div',{style:{position:'absolute',left:0,top:0,width:'50%',height:'100%',background:'#4a7ebf'}})),e('div',{key:'m',style:{position:'absolute',bottom:'15%',left:'30%',width:mo?'40%':'20%',height:'15%',background:'#8b6914',transition:'width 0.1s'}})]))};
 
-      const startGame = (level = startingLevel) => {
-        setCurrentLevel(level - 1);
-        setScore(0);
-        setLives(3);
-        setGameOver(false);
-        setGameStarted(true);
-        setIsPaused(false);
-        setShowRules(false);
-        setShowLeaderboard(false);
-        initLevel(level - 1);
-      };
+const rEn=x=>{const sc=pm;const sty=x.type==='enderman'?{bg:sc?'#4444ff':'#161616',ey:sc?'#fff':'#ff00ff',ac:'#2a0a2a'}:x.type==='dragon'?{bg:sc?'#4444ff':'#1a1a2e',ey:sc?'#fff':'#ff00ff',ac:'#3d1a5c'}:{bg:sc?'#4444ff':'#8b7355',ey:sc?'#fff':'#3d5c3d',ac:'#5c4a32'};const ch=[];if(x.type==='enderman'){ch.push(e('div',{key:'a',style:{position:'absolute',top:'30%',left:'15%',width:'25%',height:'15%',background:sty.ey}}));ch.push(e('div',{key:'b',style:{position:'absolute',top:'30%',right:'15%',width:'25%',height:'15%',background:sty.ey}}))}if(x.type==='dragon'){ch.push(e('div',{key:'a',style:{position:'absolute',top:'25%',left:'10%',width:'30%',height:'25%',background:sty.ey,borderRadius:'50%'}}));ch.push(e('div',{key:'b',style:{position:'absolute',top:'25%',right:'10%',width:'30%',height:'25%',background:sty.ey,borderRadius:'50%'}}));ch.push(e('div',{key:'c',style:{position:'absolute',top:-5,left:'20%',width:5,height:7,background:'#1a1a2e',transform:'rotate(-20deg)'}}));ch.push(e('div',{key:'d',style:{position:'absolute',top:-5,right:'20%',width:5,height:7,background:'#1a1a2e',transform:'rotate(20deg)'}}))}if(x.type==='villager'){ch.push(e('div',{key:'n',style:{position:'absolute',top:'35%',left:'35%',width:'30%',height:'40%',background:'#c69c6d',borderRadius:2}}));ch.push(e('div',{key:'a',style:{position:'absolute',top:'35%',left:'15%',width:'15%',height:'15%',background:sty.ey}}));ch.push(e('div',{key:'b',style:{position:'absolute',top:'35%',right:'15%',width:'15%',height:'15%',background:sty.ey}}));ch.push(e('div',{key:'c',style:{position:'absolute',top:'25%',left:'10%',width:'25%',height:'8%',background:'#3b2210'}}));ch.push(e('div',{key:'d',style:{position:'absolute',top:'25%',right:'10%',width:'25%',height:'8%',background:'#3b2210'}}))}return e('div',{key:x.id,style:{position:'absolute',left:x.x*CS,top:x.y*CS,width:CS,height:CS,transition:'left 0.15s,top 0.15s',zIndex:5}},e('div',{style:{width:CS-4,height:CS-4,margin:2,background:sty.bg,border:`2px solid ${sty.ac}`,borderRadius:x.type==='villager'?'4px 4px 2px 2px':2,position:'relative',boxShadow:sc?'0 0 10px #00f':'none'}},ch))};
 
-      const isValidMove = useCallback((x, y, map) => {
-        if (y < 0 || y >= mapHeight) return false;
-        return map[y][(x + mapWidth) % mapWidth] !== WALL;
-      }, []);
+const rCell=(c,x,y)=>{const isW=c===W;const ch=[];if(c===D)ch.push(e('div',{key:'d',style:{width:8,height:8,background:'radial-gradient(circle,#50c878 0%,#228b22 100%)',borderRadius:'50%',boxShadow:'0 0 5px rgba(80,200,120,0.5)'}}));if(c===P)ch.push(e('div',{key:'p',style:{width:16,height:16,background:'radial-gradient(circle,#ffd700 0%,#daa520 100%)',borderRadius:'50%',boxShadow:'0 0 10px rgba(255,215,0,0.8)',animation:'pulse 0.5s ease-in-out infinite alternate'}}));return e('div',{key:`${x}-${y}`,style:{position:'absolute',left:x*CS,top:y*CS,width:CS,height:CS,background:isW?'linear-gradient(135deg,#1a472a 0%,#0d2818 100%)':'linear-gradient(135deg,#2d1810 0%,#1a0f0a 100%)',boxShadow:isW?'inset 2px 2px 0 rgba(255,255,255,0.1),inset -2px -2px 0 rgba(0,0,0,0.3)':'inset 1px 1px 0 rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center'}},ch)};
 
-      const countDots = useCallback((map) => map.flat().filter(c => c === DOT || c === POWER).length, []);
+const CB=({dir,sym,sz=64})=>e('button',{onTouchStart:ev=>{ev.preventDefault();ev.stopPropagation();hDir(dir)},onMouseDown:ev=>{ev.preventDefault();hDir(dir)},style:{width:sz,height:sz,fontSize:sz*0.4,fontFamily:'"Press Start 2P",monospace',background:'linear-gradient(180deg,#4a6741 0%,#3d5735 50%,#2d4025 100%)',border:'4px outset #5a7a51',borderRadius:12,color:'#fff',textShadow:'2px 2px 0 #1a2a15',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',touchAction:'manipulation',userSelect:'none',outline:'none',opacity:wt?0.5:1}},sym);
 
-      const handleDir = useCallback((d) => {
-        if (!gameStarted || gameOver || isPaused) return;
-        nextDirRef.current = d;
-      }, [gameStarted, gameOver, isPaused]);
+const LB=({lv:l,sel,onClick})=>e('button',{onClick,style:{fontFamily:'"Press Start 2P",monospace',fontSize:12,width:40,height:40,background:sel?'linear-gradient(180deg,#50c878 0%,#228b22 100%)':'linear-gradient(180deg,#6b7280 0%,#4b5563 100%)',border:sel?'3px solid #166534':'3px solid #374151',borderRadius:8,color:'#fff',cursor:'pointer'}},l);
 
-      const handleTouchStart = (ev) => {
-        if (!gameStarted || gameOver) return;
-        touchStartRef.current = { x: ev.touches[0].clientX, y: ev.touches[0].clientY };
-      };
-
-      const handleTouchEnd = (ev) => {
-        if (!gameStarted || gameOver || isPaused) return;
-        const dx = ev.changedTouches[0].clientX - touchStartRef.current.x;
-        const dy = ev.changedTouches[0].clientY - touchStartRef.current.y;
-        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 30) handleDir(dx > 0 ? { x: 1, y: 0 } : { x: -1, y: 0 });
-        else if (Math.abs(dy) > 30) handleDir(dy > 0 ? { x: 0, y: 1 } : { x: 0, y: -1 });
-      };
-
-      useEffect(() => {
-        const onKey = (ev) => {
-          if (showNameEntry) return;
-          if (!gameStarted && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); startGame(); return; }
-          if (ev.key === 'Escape') { ev.preventDefault(); if (showRules) setShowRules(false); else if (showLeaderboard) setShowLeaderboard(false); else if (gameStarted && !gameOver) setIsPaused(p => !p); return; }
-          if ((ev.key === 'p' || ev.key === 'P') && gameStarted && !gameOver) { ev.preventDefault(); setIsPaused(p => !p); return; }
-          if (gameOver && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); startGame(); return; }
-          const dirs = { ArrowUp: { x: 0, y: -1 }, w: { x: 0, y: -1 }, W: { x: 0, y: -1 }, ArrowDown: { x: 0, y: 1 }, s: { x: 0, y: 1 }, S: { x: 0, y: 1 }, ArrowLeft: { x: -1, y: 0 }, a: { x: -1, y: 0 }, A: { x: -1, y: 0 }, ArrowRight: { x: 1, y: 0 }, d: { x: 1, y: 0 }, D: { x: 1, y: 0 } };
-          if (dirs[ev.key]) { ev.preventDefault(); handleDir(dirs[ev.key]); }
-        };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-      }, [gameStarted, gameOver, handleDir, showRules, showLeaderboard, showNameEntry]);
-
-      const moveEnemies = useCallback((map, sPos, pm) => {
-        setEnemies(prev => prev.map(en => {
-          const dirs = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
-          const valid = dirs.filter(d => {
-            const nx = (en.x + d.x + mapWidth) % mapWidth, ny = en.y + d.y;
-            return isValidMove(nx, ny, map) && !(d.x === -en.dir.x && d.y === -en.dir.y);
-          });
-          if (valid.length === 0) {
-            const any = dirs.filter(d => isValidMove((en.x + d.x + mapWidth) % mapWidth, en.y + d.y, map));
-            if (any.length === 0) return en;
-            const d = any[Math.floor(Math.random() * any.length)];
-            return { ...en, x: (en.x + d.x + mapWidth) % mapWidth, y: en.y + d.y, dir: d, scared: pm };
-          }
-          let chosen;
-          if (pm) {
-            valid.sort((a, b) => {
-              const dA = Math.abs(en.x + a.x - sPos.x) + Math.abs(en.y + a.y - sPos.y);
-              const dB = Math.abs(en.x + b.x - sPos.x) + Math.abs(en.y + b.y - sPos.y);
-              return dB - dA;
-            });
-            chosen = valid[0];
-          } else {
-            if (Math.random() < 0.7) {
-              valid.sort((a, b) => {
-                const dA = Math.abs(en.x + a.x - sPos.x) + Math.abs(en.y + a.y - sPos.y);
-                const dB = Math.abs(en.x + b.x - sPos.x) + Math.abs(en.y + b.y - sPos.y);
-                return dA - dB;
-              });
-              chosen = valid[0];
-            } else chosen = valid[Math.floor(Math.random() * valid.length)];
-          }
-          return { ...en, x: (en.x + chosen.x + mapWidth) % mapWidth, y: en.y + chosen.y, dir: chosen, scared: pm };
-        }));
-      }, [isValidMove]);
-
-      useEffect(() => {
-        if (!gameStarted || gameOver || isPaused) return;
-        const speed = TICK_SPEEDS[startingLevel] || 200;
-        const loop = setInterval(() => {
-          setMouthOpen(m => !m);
-          setSteve(prev => {
-            let dir = steveDirRef.current;
-            const tryX = (prev.x + nextDirRef.current.x + mapWidth) % mapWidth;
-            const tryY = prev.y + nextDirRef.current.y;
-            if ((nextDirRef.current.x || nextDirRef.current.y) && isValidMove(tryX, tryY, gameMap)) {
-              dir = nextDirRef.current;
-              steveDirRef.current = dir;
-              setSteveDir(dir);
-            }
-            const nx = (prev.x + dir.x + mapWidth) % mapWidth, ny = prev.y + dir.y;
-            if (!isValidMove(nx, ny, gameMap)) return prev;
-            if (gameMap[ny][nx] === DOT) {
-              setGameMap(m => { const nm = m.map(r => [...r]); nm[ny][nx] = EMPTY; return nm; });
-              setScore(s => s + 10);
-            }
-            if (gameMap[ny][nx] === POWER) {
-              setGameMap(m => { const nm = m.map(r => [...r]); nm[ny][nx] = EMPTY; return nm; });
-              setScore(s => s + 50);
-              setPowerMode(true);
-              if (powerTimer) clearTimeout(powerTimer);
-              setPowerTimer(setTimeout(() => setPowerMode(false), 8000));
-            }
-            return { x: nx, y: ny };
-          });
-          if (Math.random() < 0.6) moveEnemies(gameMap, steve, powerMode);
-        }, speed);
-        return () => clearInterval(loop);
-      }, [gameStarted, gameOver, isPaused, gameMap, steve, powerMode, isValidMove, moveEnemies, startingLevel, powerTimer]);
-
-      useEffect(() => {
-        if (!gameStarted || gameOver) return;
-        for (const en of enemies) {
-          if (en.x === steve.x && en.y === steve.y) {
-            if (powerMode) {
-              setScore(s => s + 200);
-              setEnemies(p => p.map(x => x.id === en.id ? { ...x, x: x.startX, y: x.startY } : x));
-            } else {
-              setLives(l => {
-                const nl = l - 1;
-                if (nl <= 0) { setGameOver(true); checkLeaderboard(score); }
-                else {
-                  const lv = LEVELS[currentLevel];
-                  setSteve({ ...lv.steveStart });
-                  setSteveDir({ x: 0, y: 0 });
-                  steveDirRef.current = { x: 0, y: 0 };
-                  setEnemies(lv.enemies.map((x, i) => ({ ...x, startX: x.x, startY: x.y, id: i, scared: false, dir: { x: 0, y: 0 } })));
-                }
-                return nl;
-              });
-            }
-          }
-        }
-        if (countDots(gameMap) === 0) {
-          const next = currentLevel + 1;
-          if (next < LEVELS.length) { setCurrentLevel(next); initLevel(next); }
-          else { const fs = score + 1000; setGameOver(true); setScore(fs); checkLeaderboard(fs); }
-        }
-      }, [steve, enemies, gameMap, powerMode, gameStarted, gameOver, currentLevel, initLevel, countDots, score, checkLeaderboard]);
-
-      const CtrlBtn = ({ dir, sym, sz = 64 }) => e('button', {
-        onTouchStart: (ev) => { ev.preventDefault(); ev.stopPropagation(); handleDir(dir); },
-        onMouseDown: (ev) => { ev.preventDefault(); handleDir(dir); },
-        style: { width: sz, height: sz, fontSize: sz * 0.4, fontFamily: '"Press Start 2P", monospace', background: 'linear-gradient(180deg, #4a6741 0%, #3d5735 50%, #2d4025 100%)', border: '4px outset #5a7a51', borderRadius: 12, color: '#fff', textShadow: '2px 2px 0 #1a2a15', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', touchAction: 'manipulation', userSelect: 'none', outline: 'none' }
-      }, sym);
-
-      const LvlBtn = ({ lv, sel, onClick }) => e('button', {
-        onClick,
-        style: { fontFamily: '"Press Start 2P", monospace', fontSize: 14, width: 44, height: 44, background: sel ? 'linear-gradient(180deg, #50c878 0%, #228b22 100%)' : 'linear-gradient(180deg, #6b7280 0%, #4b5563 100%)', border: sel ? '3px solid #166534' : '3px solid #374151', borderRadius: 8, color: '#fff', cursor: 'pointer' }
-      }, lv);
-
-      const renderSteve = () => {
-        const rot = steveDir.x === 1 ? 0 : steveDir.x === -1 ? 180 : steveDir.y === 1 ? 90 : steveDir.y === -1 ? -90 : 0;
-        return e('div', { style: { position: 'absolute', left: steve.x * CELL_SIZE, top: steve.y * CELL_SIZE, width: CELL_SIZE, height: CELL_SIZE, transition: 'left 0.1s, top 0.1s', zIndex: 10 } },
-          e('div', { style: { width: CELL_SIZE - 4, height: CELL_SIZE - 4, margin: 2, background: '#c69c6d', border: '2px solid #8b6914', borderRadius: 2, position: 'relative', transform: `rotate(${rot}deg)`, boxShadow: 'inset 2px 2px 0 rgba(255,255,255,0.3)' } }, [
-            e('div', { key: 'h', style: { position: 'absolute', top: 0, left: 0, right: 0, height: '35%', background: '#3b2210', borderRadius: '2px 2px 0 0' } }),
-            e('div', { key: 'e1', style: { position: 'absolute', top: '40%', left: '15%', width: '20%', height: '20%', background: '#fff' } }, e('div', { style: { position: 'absolute', right: 0, top: 0, width: '50%', height: '100%', background: '#4a7ebf' } })),
-            e('div', { key: 'e2', style: { position: 'absolute', top: '40%', right: '15%', width: '20%', height: '20%', background: '#fff' } }, e('div', { style: { position: 'absolute', left: 0, top: 0, width: '50%', height: '100%', background: '#4a7ebf' } })),
-            e('div', { key: 'm', style: { position: 'absolute', bottom: '15%', left: '30%', width: mouthOpen ? '40%' : '20%', height: '15%', background: '#8b6914', transition: 'width 0.1s' } })
-          ])
-        );
-      };
-
-      const renderEnemy = (en) => {
-        const sc = powerMode;
-        const st = en.type === 'enderman' ? { bg: sc ? '#4444ff' : '#161616', ey: sc ? '#fff' : '#ff00ff', ac: '#2a0a2a' } : en.type === 'dragon' ? { bg: sc ? '#4444ff' : '#1a1a2e', ey: sc ? '#fff' : '#ff00ff', ac: '#3d1a5c' } : { bg: sc ? '#4444ff' : '#8b7355', ey: sc ? '#fff' : '#3d5c3d', ac: '#5c4a32' };
-        const kids = [];
-        if (en.type === 'enderman') { kids.push(e('div', { key: 'a', style: { position: 'absolute', top: '30%', left: '15%', width: '25%', height: '15%', background: st.ey } })); kids.push(e('div', { key: 'b', style: { position: 'absolute', top: '30%', right: '15%', width: '25%', height: '15%', background: st.ey } })); }
-        if (en.type === 'dragon') { kids.push(e('div', { key: 'a', style: { position: 'absolute', top: '25%', left: '10%', width: '30%', height: '25%', background: st.ey, borderRadius: '50%' } })); kids.push(e('div', { key: 'b', style: { position: 'absolute', top: '25%', right: '10%', width: '30%', height: '25%', background: st.ey, borderRadius: '50%' } })); kids.push(e('div', { key: 'c', style: { position: 'absolute', top: -5, left: '20%', width: 5, height: 7, background: '#1a1a2e', transform: 'rotate(-20deg)' } })); kids.push(e('div', { key: 'd', style: { position: 'absolute', top: -5, right: '20%', width: 5, height: 7, background: '#1a1a2e', transform: 'rotate(20deg)' } })); }
-        if (en.type === 'villager') { kids.push(e('div', { key: 'n', style: { position: 'absolute', top: '35%', left: '35%', width: '30%', height: '40%', background: '#c69c6d', borderRadius: 2 } })); kids.push(e('div', { key: 'a', style: { position: 'absolute', top: '35%', left: '15%', width: '15%', height: '15%', background: st.ey } })); kids.push(e('div', { key: 'b', style: { position: 'absolute', top: '35%', right: '15%', width: '15%', height: '15%', background: st.ey } })); kids.push(e('div', { key: 'c', style: { position: 'absolute', top: '25%', left: '10%', width: '25%', height: '8%', background: '#3b2210' } })); kids.push(e('div', { key: 'd', style: { position: 'absolute', top: '25%', right: '10%', width: '25%', height: '8%', background: '#3b2210' } })); }
-        return e('div', { key: en.id, style: { position: 'absolute', left: en.x * CELL_SIZE, top: en.y * CELL_SIZE, width: CELL_SIZE, height: CELL_SIZE, transition: 'left 0.15s, top 0.15s', zIndex: 5 } },
-          e('div', { style: { width: CELL_SIZE - 4, height: CELL_SIZE - 4, margin: 2, background: st.bg, border: `2px solid ${st.ac}`, borderRadius: en.type === 'villager' ? '4px 4px 2px 2px' : 2, position: 'relative', boxShadow: sc ? '0 0 10px #00f' : 'none' } }, kids)
-        );
-      };
-
-      const renderCell = (c, x, y) => {
-        const isW = c === WALL;
-        const kids = [];
-        if (c === DOT) kids.push(e('div', { key: 'd', style: { width: 8, height: 8, background: 'radial-gradient(circle, #50c878 0%, #228b22 100%)', borderRadius: '50%', boxShadow: '0 0 5px rgba(80,200,120,0.5)' } }));
-        if (c === POWER) kids.push(e('div', { key: 'p', style: { width: 16, height: 16, background: 'radial-gradient(circle, #ffd700 0%, #daa520 100%)', borderRadius: '50%', boxShadow: '0 0 10px rgba(255,215,0,0.8)', animation: 'pulse 0.5s ease-in-out infinite alternate' } }));
-        return e('div', { key: `${x}-${y}`, style: { position: 'absolute', left: x * CELL_SIZE, top: y * CELL_SIZE, width: CELL_SIZE, height: CELL_SIZE, background: isW ? 'linear-gradient(135deg, #1a472a 0%, #0d2818 100%)' : 'linear-gradient(135deg, #2d1810 0%, #1a0f0a 100%)', boxShadow: isW ? 'inset 2px 2px 0 rgba(255,255,255,0.1), inset -2px -2px 0 rgba(0,0,0,0.3)' : 'inset 1px 1px 0 rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' } }, kids);
-      };
-
-      const RulesModal = () => e('div', { style: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 } },
-        e('div', { style: { background: 'linear-gradient(180deg, #2d1a2d 0%, #1a0a1a 100%)', border: '4px solid #50c878', borderRadius: 16, padding: 24, maxWidth: 550, maxHeight: '85vh', overflow: 'auto' } }, [
-          e('h2', { key: 't', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 14, color: '#50c878', marginBottom: 16, textAlign: 'center' } }, '📜 HOW TO PLAY 📜'),
-          e('div', { key: 'c', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 8, color: '#fff', lineHeight: 2 } }, [
-            e('p', { key: 'o1', style: { color: '#ffd700', marginBottom: 8 } }, '🎯 OBJECTIVE:'),
-            e('p', { key: 'o2', style: { marginBottom: 12, paddingLeft: 8 } }, 'Help Steve collect all emeralds while avoiding mobs!'),
-            e('p', { key: 'c1', style: { color: '#ffd700', marginBottom: 8 } }, '👾 CHARACTERS:'),
-            e('div', { key: 'c2', style: { paddingLeft: 8, marginBottom: 12 } }, [
-              e('p', { key: 'a' }, '🧑 STEVE - You control him!'),
-              e('p', { key: 'b' }, '👤 VILLAGER - Slow, easier to avoid'),
-              e('p', { key: 'c' }, '🟣 ENDERMAN - Fast and aggressive'),
-              e('p', { key: 'd' }, '🐉 ENDER DRAGON - The toughest mob!')
-            ]),
-            e('p', { key: 's1', style: { color: '#ffd700', marginBottom: 8 } }, '💎 SCORING:'),
-            e('div', { key: 's2', style: { paddingLeft: 8, marginBottom: 12 } }, [
-              e('p', { key: 'a' }, '🟢 Emerald: 10 pts'),
-              e('p', { key: 'b' }, '🍎 Golden Apple: 50 pts'),
-              e('p', { key: 'c' }, '👻 Eating scared mob: 200 pts'),
-              e('p', { key: 'd' }, '🏆 Complete all levels: 1000 bonus!')
-            ]),
-            e('p', { key: 'p1', style: { color: '#ffd700', marginBottom: 8 } }, '⚡ POWER-UPS:'),
-            e('p', { key: 'p2', style: { paddingLeft: 8, marginBottom: 12 } }, 'Golden Apples make mobs turn BLUE and run away! Eat them for 200 points!'),
-            e('p', { key: 'x1', style: { color: '#ffd700', marginBottom: 8 } }, '🎮 CONTROLS:'),
-            e('div', { key: 'x2', style: { paddingLeft: 8, marginBottom: 12 } }, [
-              e('p', { key: 'a' }, '• SWIPE anywhere to change direction'),
-              e('p', { key: 'b' }, '• LEFT/RIGHT buttons (left hand)'),
-              e('p', { key: 'c' }, '• UP/DOWN buttons (right hand)'),
-              e('p', { key: 'd' }, '• Keyboard: WASD or Arrow keys'),
-              e('p', { key: 'e' }, '• P or ESC to pause')
-            ]),
-            e('p', { key: 'l1', style: { color: '#ffd700', marginBottom: 8 } }, '📊 7 LEVELS:'),
-            e('p', { key: 'l2', style: { paddingLeft: 8 } }, 'Level 1-2: Very Easy (1 mob) | Level 3-4: Medium (2-3 mobs) | Level 5-7: Hard (3-5 mobs + dragons!)')
-          ]),
-          e('button', { key: 'b', onClick: () => setShowRules(false), style: { display: 'block', margin: '16px auto 0', fontFamily: '"Press Start 2P", monospace', fontSize: 11, padding: '10px 20px', background: 'linear-gradient(180deg, #50c878 0%, #228b22 100%)', border: '4px solid #166534', borderRadius: 8, color: '#fff', cursor: 'pointer' } }, 'GOT IT!')
-        ])
-      );
-
-      const LeaderboardModal = () => e('div', { style: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 } },
-        e('div', { style: { background: 'linear-gradient(180deg, #2d1a2d 0%, #1a0a1a 100%)', border: '4px solid #ffd700', borderRadius: 16, padding: 24, minWidth: 320 } }, [
-          e('h2', { key: 't', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 12, color: '#ffd700', marginBottom: 16, textAlign: 'center' } }, '🏆 TOP 10 SCORES 🏆'),
-          leaderboard.length === 0 ? e('p', { key: 'e', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 9, color: '#888', textAlign: 'center', padding: 16 } }, 'No scores yet! Be the first!') :
-            e('div', { key: 'l', style: { marginBottom: 16 } }, leaderboard.map((en, i) => e('div', { key: i, style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', background: i === 0 ? 'rgba(255,215,0,0.2)' : i === 1 ? 'rgba(192,192,192,0.2)' : i === 2 ? 'rgba(205,127,50,0.2)' : 'transparent', borderRadius: 4, marginBottom: 3 } }, [
-              e('span', { key: 'n', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 9, color: i < 3 ? '#ffd700' : '#fff' } }, `${i + 1}. ${en.name}`),
-              e('span', { key: 's', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 9, color: '#50c878' } }, en.score)
-            ]))),
-          e('button', { key: 'b', onClick: () => setShowLeaderboard(false), style: { display: 'block', margin: '0 auto', fontFamily: '"Press Start 2P", monospace', fontSize: 11, padding: '10px 20px', background: 'linear-gradient(180deg, #6b7280 0%, #4b5563 100%)', border: '4px solid #374151', borderRadius: 8, color: '#fff', cursor: 'pointer' } }, 'CLOSE')
-        ])
-      );
-
-      const NameEntryModal = () => e('div', { style: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 } },
-        e('div', { style: { background: 'linear-gradient(180deg, #2d1a2d 0%, #1a0a1a 100%)', border: '4px solid #50c878', borderRadius: 16, padding: 24, textAlign: 'center' } }, [
-          e('h2', { key: 't', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 12, color: '#ffd700', marginBottom: 8 } }, '🎉 HIGH SCORE! 🎉'),
-          e('p', { key: 's', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 16, color: '#50c878', marginBottom: 16 } }, `${pendingScore} pts`),
-          e('p', { key: 'l', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 9, color: '#fff', marginBottom: 12 } }, 'Enter your name:'),
-          e('input', { key: 'i', ref: nameInputRef, type: 'text', value: playerName, onChange: (ev) => setPlayerName(ev.target.value.slice(0, 12)), onKeyDown: (ev) => { if (ev.key === 'Enter') saveToLeaderboard(playerName, pendingScore); }, placeholder: 'Your name', maxLength: 12, style: { fontFamily: '"Press Start 2P", monospace', fontSize: 12, padding: '10px 14px', background: '#1a0a1a', border: '3px solid #50c878', borderRadius: 8, color: '#fff', textAlign: 'center', width: 180, marginBottom: 16, outline: 'none' } }),
-          e('br', { key: 'br' }),
-          e('button', { key: 'b', onClick: () => saveToLeaderboard(playerName, pendingScore), style: { fontFamily: '"Press Start 2P", monospace', fontSize: 11, padding: '10px 20px', background: 'linear-gradient(180deg, #50c878 0%, #228b22 100%)', border: '4px solid #166534', borderRadius: 8, color: '#fff', cursor: 'pointer' } }, 'SAVE SCORE')
-        ])
-      );
-
-      return e('div', { onTouchStart: handleTouchStart, onTouchEnd: handleTouchEnd, style: { minHeight: '100vh', background: 'linear-gradient(180deg, #1a0a1a 0%, #2d1a2d 50%, #0d0d0d 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 20px', fontFamily: 'monospace', overflow: 'hidden', touchAction: 'manipulation' } }, [
-        showRules && e(RulesModal, { key: 'rules' }),
-        showLeaderboard && e(LeaderboardModal, { key: 'lb' }),
-        showNameEntry && e(NameEntryModal, { key: 'name' }),
-
-        // Header
-        e('div', { key: 'header', style: { display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8, flexWrap: 'wrap', justifyContent: 'center' } }, [
-          e('div', { key: 'title', style: { background: 'linear-gradient(180deg, #2d4025 0%, #1a2a15 100%)', border: '4px solid #0d1a08', borderRadius: 8, padding: '8px 16px', boxShadow: '4px 4px 0 rgba(0,0,0,0.6)' } },
-            e('h1', { style: { fontFamily: '"Press Start 2P", monospace', fontSize: 14, color: '#50c878', textShadow: '3px 3px 0 #0d1a08', margin: 0 } }, '⛏️ MINE MUNCHER ⛏️')
-          ),
-          e('div', { key: 'scores', style: { display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' } }, [
-            e('div', { key: 's1', style: { background: 'linear-gradient(180deg, #3d2817 0%, #2a1a0f 100%)', border: '3px solid #1a0f08', borderRadius: 6, padding: '6px 12px' } }, e('span', { style: { fontFamily: '"Press Start 2P", monospace', fontSize: 10, color: '#50c878' } }, `SCORE: ${score}`)),
-            e('div', { key: 's2', style: { background: 'linear-gradient(180deg, #3d2817 0%, #2a1a0f 100%)', border: '3px solid #1a0f08', borderRadius: 6, padding: '6px 12px' } }, e('span', { style: { fontFamily: '"Press Start 2P", monospace', fontSize: 10, color: '#ff6b6b' } }, '❤️'.repeat(lives))),
-            e('div', { key: 's3', style: { background: 'linear-gradient(180deg, #3d2817 0%, #2a1a0f 100%)', border: '3px solid #1a0f08', borderRadius: 6, padding: '6px 12px' } }, e('span', { style: { fontFamily: '"Press Start 2P", monospace', fontSize: 10, color: '#4ee4fc' } }, `LVL: ${currentLevel + 1}/7`)),
-          ]),
-          e('div', { key: 'btns', style: { display: 'flex', gap: 6 } }, [
-            e('button', { key: 'r', onClick: () => setShowRules(true), style: { fontFamily: '"Press Start 2P", monospace', fontSize: 8, padding: '6px 10px', background: 'linear-gradient(180deg, #6b7280 0%, #4b5563 100%)', border: '3px solid #374151', borderRadius: 6, color: '#fff', cursor: 'pointer' } }, '📜 RULES'),
-            e('button', { key: 'l', onClick: () => setShowLeaderboard(true), style: { fontFamily: '"Press Start 2P", monospace', fontSize: 8, padding: '6px 10px', background: 'linear-gradient(180deg, #6b7280 0%, #4b5563 100%)', border: '3px solid #374151', borderRadius: 6, color: '#fff', cursor: 'pointer' } }, '🏆 SCORES'),
-          ]),
-        ]),
-
-        powerMode && e('div', { key: 'power', style: { background: 'linear-gradient(180deg, #ffd700 0%, #daa520 100%)', border: '3px solid #b8860b', borderRadius: 6, padding: '5px 14px', marginBottom: 6, animation: 'pulse 0.3s ease-in-out infinite alternate' } }, e('span', { style: { fontFamily: '"Press Start 2P", monospace', fontSize: 9, color: '#000' } }, '⚡ GOLDEN APPLE POWER! ⚡')),
-
-        // Game area
-        e('div', { key: 'game', style: { display: 'flex', alignItems: 'center', gap: 16 } }, [
-          e('div', { key: 'left', style: { display: 'flex', gap: 8 } }, [e(CtrlBtn, { key: 'l', dir: { x: -1, y: 0 }, sym: '◀' }), e(CtrlBtn, { key: 'r', dir: { x: 1, y: 0 }, sym: '▶' })]),
-          e('div', { key: 'board', style: { position: 'relative', width: mapWidth * CELL_SIZE, height: mapHeight * CELL_SIZE, border: '6px solid #1a472a', borderRadius: 4, boxShadow: '0 8px 32px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.4)', overflow: 'hidden', background: '#0d0d0d' } }, [
-            ...gameMap.flatMap((row, y) => row.map((c, x) => renderCell(c, x, y))),
-            ...enemies.map(en => renderEnemy(en)),
-            gameStarted && !gameOver && renderSteve(),
-            
-            !gameStarted && e('div', { key: 'start', style: { position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.95)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 16 } }, [
-              e('div', { key: 't', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 14, color: '#50c878', textShadow: '2px 2px 0 #000' } }, 'MINE MUNCHER'),
-              e('div', { key: 'h1', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 8, color: '#aaa' } }, 'Help Steve collect emeralds!'),
-              e('div', { key: 'h2', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 8, color: '#ffd700' } }, '🍎 Golden Apple = Power Mode'),
-              e('div', { key: 'l', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 8, color: '#aaa', marginTop: 6 } }, 'Select Starting Level'),
-              e('div', { key: 'lvls', style: { display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' } }, [1,2,3,4,5,6,7].map(lv => e(LvlBtn, { key: lv, lv, sel: startingLevel === lv, onClick: () => setStartingLevel(lv) }))),
-              e('div', { key: 'h3', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 6, color: '#666' } }, '1-2=Easy | 3-4=Medium | 5-7=Hard'),
-              e('button', { key: 'b', onClick: () => startGame(startingLevel), style: { fontFamily: '"Press Start 2P", monospace', fontSize: 11, padding: '10px 20px', background: 'linear-gradient(180deg, #50c878 0%, #228b22 100%)', border: '4px solid #166534', borderRadius: 8, color: '#fff', cursor: 'pointer', marginTop: 6 } }, 'START'),
-            ]),
-
-            gameOver && !showNameEntry && e('div', { key: 'over', style: { position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.95)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 } }, [
-              e('div', { key: 't', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 16, color: lives > 0 ? '#50c878' : '#ff6b6b', textShadow: '2px 2px 0 #000' } }, lives > 0 ? 'YOU WIN!' : 'GAME OVER'),
-              e('div', { key: 's', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 12, color: '#ffd700' } }, `Score: ${score}`),
-              e('div', { key: 'l', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 8, color: '#aaa', marginTop: 6 } }, 'Select Level'),
-              e('div', { key: 'lvls', style: { display: 'flex', gap: 5, flexWrap: 'wrap', justifyContent: 'center' } }, [1,2,3,4,5,6,7].map(lv => e(LvlBtn, { key: lv, lv, sel: startingLevel === lv, onClick: () => setStartingLevel(lv) }))),
-              e('button', { key: 'b', onClick: () => startGame(startingLevel), style: { fontFamily: '"Press Start 2P", monospace', fontSize: 11, padding: '10px 20px', background: 'linear-gradient(180deg, #50c878 0%, #228b22 100%)', border: '4px solid #166534', borderRadius: 8, color: '#fff', cursor: 'pointer' } }, lives > 0 ? 'PLAY AGAIN' : 'RETRY'),
-            ]),
-
-            isPaused && !gameOver && e('div', { key: 'pause', style: { position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 } }, [
-              e('div', { key: 't', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 18, color: '#ffd700', textShadow: '2px 2px 0 #000' } }, 'PAUSED'),
-              e('div', { key: 'h', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 8, color: '#aaa' } }, 'Press P or tap Resume'),
-            ]),
-          ]),
-          e('div', { key: 'right', style: { display: 'flex', gap: 8 } }, [e(CtrlBtn, { key: 'u', dir: { x: 0, y: -1 }, sym: '▲' }), e(CtrlBtn, { key: 'd', dir: { x: 0, y: 1 }, sym: '▼' })]),
-        ]),
-
-        gameStarted && !gameOver && e('button', { key: 'pausebtn', onClick: () => setIsPaused(p => !p), style: { marginTop: 12, fontFamily: '"Press Start 2P", monospace', fontSize: 9, padding: '8px 16px', background: 'linear-gradient(180deg, #6b7280 0%, #4b5563 100%)', border: '3px solid #374151', borderRadius: 6, color: '#fff', cursor: 'pointer' } }, isPaused ? 'RESUME' : 'PAUSE'),
-
-        e('div', { key: 'legend', style: { marginTop: 12, display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' } }, [
-          e('div', { key: 'a', style: { display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.5)', padding: '4px 8px', borderRadius: 6 } }, [e('div', { key: 'i', style: { width: 8, height: 8, background: '#50c878', borderRadius: '50%' } }), e('span', { key: 't', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 7, color: '#fff' } }, 'Emerald')]),
-          e('div', { key: 'b', style: { display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.5)', padding: '4px 8px', borderRadius: 6 } }, [e('div', { key: 'i', style: { width: 10, height: 10, background: '#ffd700', borderRadius: '50%' } }), e('span', { key: 't', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 7, color: '#fff' } }, 'G.Apple')]),
-          e('div', { key: 'c', style: { display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.5)', padding: '4px 8px', borderRadius: 6 } }, [e('div', { key: 'i', style: { width: 8, height: 8, background: '#8b7355', border: '1px solid #5c4a32', borderRadius: 2 } }), e('span', { key: 't', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 7, color: '#fff' } }, 'Villager')]),
-          e('div', { key: 'd', style: { display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.5)', padding: '4px 8px', borderRadius: 6 } }, [e('div', { key: 'i', style: { width: 8, height: 8, background: '#161616', border: '1px solid #ff00ff' } }), e('span', { key: 't', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 7, color: '#fff' } }, 'Enderman')]),
-          e('div', { key: 'e', style: { display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.5)', padding: '4px 8px', borderRadius: 6 } }, [e('div', { key: 'i', style: { width: 8, height: 8, background: '#1a1a2e', border: '1px solid #3d1a5c' } }), e('span', { key: 't', style: { fontFamily: '"Press Start 2P", monospace', fontSize: 7, color: '#fff' } }, 'Dragon')]),
-        ]),
-      ]);
-    }
-
-    ReactDOM.createRoot(document.getElementById('root')).render(e(Game));
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
-    }
+return e('div',{onTouchStart:hTS,onTouchEnd:hTE,style:{minHeight:'100vh',background:'linear-gradient(180deg,#1a0a1a 0%,#2d1a2d 50%,#0d0d0d 100%)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'flex-start',padding:'10px 20px',fontFamily:'monospace',overflow:'hidden',touchAction:'manipulation'}},[
+sr&&e('div',{key:'rules',style:{position:'fixed',inset:0,background:'rgba(0,0,0,0.95)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:20}},e('div',{style:{background:'linear-gradient(180deg,#2d1a2d 0%,#1a0a1a 100%)',border:'4px solid #50c878',borderRadius:16,padding:24,maxWidth:550,maxHeight:'85vh',overflow:'auto'}},[e('h2',{key:'t',style:{fontFamily:'"Press Start 2P",monospace',fontSize:14,color:'#50c878',marginBottom:16,textAlign:'center'}},'📜 HOW TO PLAY 📜'),e('div',{key:'c',style:{fontFamily:'"Press Start 2P",monospace',fontSize:8,color:'#fff',lineHeight:2}},'🎯 Collect emeralds, avoid mobs! 🍎 Golden Apple = Power Mode (eat mobs!) 🎮 Press GO to start each round. 10 Levels with Dragons from Level 3!'),e('button',{key:'b',onClick:()=>setSr(false),style:{display:'block',margin:'16px auto 0',fontFamily:'"Press Start 2P",monospace',fontSize:11,padding:'10px 20px',background:'linear-gradient(180deg,#50c878 0%,#228b22 100%)',border:'4px solid #166534',borderRadius:8,color:'#fff',cursor:'pointer'}},'GOT IT!')])),
+sl2&&e('div',{key:'lb',style:{position:'fixed',inset:0,background:'rgba(0,0,0,0.95)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:20}},e('div',{style:{background:'linear-gradient(180deg,#2d1a2d 0%,#1a0a1a 100%)',border:'4px solid #ffd700',borderRadius:16,padding:24,minWidth:320}},[e('h2',{key:'t',style:{fontFamily:'"Press Start 2P",monospace',fontSize:12,color:'#ffd700',marginBottom:16,textAlign:'center'}},'🏆 TOP 10 SCORES 🏆'),lb.length===0?e('p',{key:'e',style:{fontFamily:'"Press Start 2P",monospace',fontSize:9,color:'#888',textAlign:'center',padding:16}},'No scores yet!'):e('div',{key:'l',style:{marginBottom:16}},lb.map((x,i)=>e('div',{key:i,style:{display:'flex',justifyContent:'space-between',padding:'6px 10px',background:i===0?'rgba(255,215,0,0.2)':i===1?'rgba(192,192,192,0.2)':i===2?'rgba(205,127,50,0.2)':'transparent',borderRadius:4,marginBottom:3}},[e('span',{key:'n',style:{fontFamily:'"Press Start 2P",monospace',fontSize:9,color:i<3?'#ffd700':'#fff'}},`${i+1}. ${x.name}`),e('span',{key:'s',style:{fontFamily:'"Press Start 2P",monospace',fontSize:9,color:'#50c878'}},x.score)]))),e('button',{key:'b',onClick:()=>setSl2(false),style:{display:'block',margin:'0 auto',fontFamily:'"Press Start 2P",monospace',fontSize:11,padding:'10px 20px',background:'linear-gradient(180deg,#6b7280 0%,#4b5563 100%)',border:'4px solid #374151',borderRadius:8,color:'#fff',cursor:'pointer'}},'CLOSE')])),
+sn&&e('div',{key:'ne',style:{position:'fixed',inset:0,background:'rgba(0,0,0,0.95)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:20}},e('div',{style:{background:'linear-gradient(180deg,#2d1a2d 0%,#1a0a1a 100%)',border:'4px solid #50c878',borderRadius:16,padding:24,textAlign:'center'}},[e('h2',{key:'t',style:{fontFamily:'"Press Start 2P",monospace',fontSize:12,color:'#ffd700',marginBottom:8}},'🎉 HIGH SCORE! 🎉'),e('p',{key:'s',style:{fontFamily:'"Press Start 2P",monospace',fontSize:16,color:'#50c878',marginBottom:16}},`${ps} pts`),e('input',{key:'i',ref:niR,type:'text',value:pn,onChange:ev=>setPn(ev.target.value.slice(0,12)),onKeyDown:ev=>{if(ev.key==='Enter')saveLb(pn,ps)},placeholder:'Your name',maxLength:12,style:{fontFamily:'"Press Start 2P",monospace',fontSize:12,padding:'10px 14px',background:'#1a0a1a',border:'3px solid #50c878',borderRadius:8,color:'#fff',textAlign:'center',width:180,marginBottom:16,outline:'none'}}),e('br',{key:'br'}),e('button',{key:'b',onClick:()=>saveLb(pn,ps),style:{fontFamily:'"Press Start 2P",monospace',fontSize:11,padding:'10px 20px',background:'linear-gradient(180deg,#50c878 0%,#228b22 100%)',border:'4px solid #166534',borderRadius:8,color:'#fff',cursor:'pointer'}},'SAVE SCORE')])),
+e('div',{key:'hdr',style:{display:'flex',alignItems:'center',gap:16,marginBottom:8,flexWrap:'wrap',justifyContent:'center'}},[e('div',{key:'ttl',style:{background:'linear-gradient(180deg,#2d4025 0%,#1a2a15 100%)',border:'4px solid #0d1a08',borderRadius:8,padding:'8px 16px',boxShadow:'4px 4px 0 rgba(0,0,0,0.6)'}},e('h1',{style:{fontFamily:'"Press Start 2P",monospace',fontSize:14,color:'#50c878',textShadow:'3px 3px 0 #0d1a08',margin:0}},'⛏️ MINE MUNCHER ⛏️')),e('div',{key:'sc',style:{display:'flex',gap:8,flexWrap:'wrap',justifyContent:'center'}},[e('div',{key:'s1',style:{background:'linear-gradient(180deg,#3d2817 0%,#2a1a0f 100%)',border:'3px solid #1a0f08',borderRadius:6,padding:'6px 12px'}},e('span',{style:{fontFamily:'"Press Start 2P",monospace',fontSize:10,color:'#50c878'}},`SCORE: ${sc}`)),e('div',{key:'s2',style:{background:'linear-gradient(180deg,#3d2817 0%,#2a1a0f 100%)',border:'3px solid #1a0f08',borderRadius:6,padding:'6px 12px'}},e('span',{style:{fontFamily:'"Press Start 2P",monospace',fontSize:10,color:'#ff6b6b'}},'❤️'.repeat(lv))),e('div',{key:'s3',style:{background:'linear-gradient(180deg,#3d2817 0%,#2a1a0f 100%)',border:'3px solid #1a0f08',borderRadius:6,padding:'6px 12px'}},e('span',{style:{fontFamily:'"Press Start 2P",monospace',fontSize:10,color:'#4ee4fc'}},`LVL: ${cl+1}/10`))]),e('div',{key:'btns',style:{display:'flex',gap:8}},[e('button',{key:'r',onClick:()=>setSr(true),style:{fontFamily:'"Press Start 2P",monospace',fontSize:9,padding:'8px 12px',background:'linear-gradient(180deg,#6b7280 0%,#4b5563 100%)',border:'3px solid #374151',borderRadius:6,color:'#fff',cursor:'pointer'}},'📜 RULES'),e('button',{key:'l',onClick:()=>setSl2(true),style:{fontFamily:'"Press Start 2P",monospace',fontSize:9,padding:'8px 12px',background:'linear-gradient(180deg,#6b7280 0%,#4b5563 100%)',border:'3px solid #374151',borderRadius:6,color:'#fff',cursor:'pointer'}},'🏆 SCORES')])]),
+pm&&e('div',{key:'pm',style:{background:'linear-gradient(180deg,#ffd700 0%,#daa520 100%)',border:'3px solid #b8860b',borderRadius:6,padding:'6px 16px',marginBottom:6,animation:'pulse 0.3s ease-in-out infinite alternate'}},e('span',{style:{fontFamily:'"Press Start 2P",monospace',fontSize:10,color:'#000'}},'⚡ GOLDEN APPLE POWER! ⚡')),
+e('div',{key:'ga',style:{display:'flex',flexDirection:'column',alignItems:'center'}},[e('div',{key:'bd',style:{position:'relative',width:MW*CS,height:MH*CS,border:'6px solid #1a472a',borderRadius:4,boxShadow:'0 8px 32px rgba(0,0,0,0.6),inset 0 0 30px rgba(0,0,0,0.4)',overflow:'hidden',background:'#0d0d0d'}},[...gm.flatMap((r,y)=>r.map((c,x)=>rCell(c,x,y))),...en.map(x=>rEn(x)),gs&&!go&&rSt(),
+!gs&&e('div',{key:'st',style:{position:'absolute',inset:0,background:'rgba(0,0,0,0.95)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,padding:20}},[e('div',{key:'t',style:{fontFamily:'"Press Start 2P",monospace',fontSize:16,color:'#50c878',textShadow:'2px 2px 0 #000'}},'MINE MUNCHER'),e('div',{key:'l',style:{fontFamily:'"Press Start 2P",monospace',fontSize:9,color:'#aaa',marginTop:8}},'Select Starting Level'),e('div',{key:'lvs',style:{display:'flex',gap:6,flexWrap:'wrap',justifyContent:'center'}},[1,2,3,4,5,6,7,8,9,10].map(l=>e(LB,{key:l,lv:l,sel:sl===l,onClick:()=>setSl(l)}))),e('div',{key:'h',style:{fontFamily:'"Press Start 2P",monospace',fontSize:7,color:'#666'}},'1-3=Easy | 4-6=Medium | 7-10=Hard'),e('button',{key:'b',onClick:()=>startG(sl),style:{fontFamily:'"Press Start 2P",monospace',fontSize:12,padding:'12px 24px',background:'linear-gradient(180deg,#50c878 0%,#228b22 100%)',border:'4px solid #166534',borderRadius:8,color:'#fff',cursor:'pointer',marginTop:8}},'START')]),
+gs&&!go&&wt&&e('div',{key:'wt',style:{position:'absolute',inset:0,background:'rgba(0,0,0,0.85)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:15}},[shd&&e('div',{key:'dm',style:{fontFamily:'"Press Start 2P",monospace',fontSize:14,color:'#ff6b6b',textShadow:'2px 2px 0 #000',animation:'deathFlash 0.5s ease-in-out 3',marginBottom:10}},dm),e('div',{key:'t',style:{fontFamily:'"Press Start 2P",monospace',fontSize:12,color:'#ffd700',textShadow:'2px 2px 0 #000'}},shd?`Lives: ${'❤️'.repeat(lv)}`:`LEVEL ${cl+1}`),e('div',{key:'h',style:{fontFamily:'"Press Start 2P",monospace',fontSize:10,color:'#aaa'}},shd?'Press GO to continue':'Get Ready!'),e('button',{key:'b',onClick:startR,style:{fontFamily:'"Press Start 2P",monospace',fontSize:14,padding:'14px 32px',background:'linear-gradient(180deg,#50c878 0%,#228b22 100%)',border:'4px solid #166534',borderRadius:8,color:'#fff',cursor:'pointer',boxShadow:'4px 4px 0 rgba(0,0,0,0.4)'}},'▶ GO!')]),
+go&&!sn&&e('div',{key:'go',style:{position:'absolute',inset:0,background:'rgba(0,0,0,0.95)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12}},[e('div',{key:'t',style:{fontFamily:'"Press Start 2P",monospace',fontSize:18,color:lv>0?'#50c878':'#ff6b6b',textShadow:'2px 2px 0 #000'}},lv>0?'🏆 YOU WIN! 🏆':'💀 GAME OVER 💀'),e('div',{key:'s',style:{fontFamily:'"Press Start 2P",monospace',fontSize:14,color:'#ffd700'}},`Score: ${sc}`),e('div',{key:'l',style:{fontFamily:'"Press Start 2P",monospace',fontSize:9,color:'#aaa',marginTop:8}},'Select Level'),e('div',{key:'lvs',style:{display:'flex',gap:5,flexWrap:'wrap',justifyContent:'center'}},[1,2,3,4,5,6,7,8,9,10].map(l=>e(LB,{key:l,lv:l,sel:sl===l,onClick:()=>setSl(l)}))),e('button',{key:'b',onClick:()=>startG(sl),style:{fontFamily:'"Press Start 2P",monospace',fontSize:12,padding:'12px 24px',background:'linear-gradient(180deg,#50c878 0%,#228b22 100%)',border:'4px solid #166534',borderRadius:8,color:'#fff',cursor:'pointer'}},lv>0?'PLAY AGAIN':'RETRY')]),
+ip&&!go&&e('div',{key:'pa',style:{position:'absolute',inset:0,background:'rgba(0,0,0,0.85)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:15}},[e('div',{key:'t',style:{fontFamily:'"Press Start 2P",monospace',fontSize:20,color:'#ffd700',textShadow:'2px 2px 0 #000'}},'PAUSED'),e('div',{key:'h',style:{fontFamily:'"Press Start 2P",monospace',fontSize:9,color:'#aaa'}},'Press P or tap Resume')])]),
+e('div',{key:'ctrl',style:{display:'flex',justifyContent:'space-between',width:MW*CS,marginTop:15,paddingLeft:10,paddingRight:10}},[e('div',{key:'lc',style:{display:'flex',gap:10,alignItems:'center'}},[e(CB,{key:'l',dir:{x:-1,y:0},sym:'◀'}),e(CB,{key:'r',dir:{x:1,y:0},sym:'▶'})]),gs&&!go&&!wt&&e('button',{key:'pa',onClick:()=>setIp(p=>!p),style:{fontFamily:'"Press Start 2P",monospace',fontSize:10,padding:'10px 20px',background:'linear-gradient(180deg,#6b7280 0%,#4b5563 100%)',border:'3px solid #374151',borderRadius:6,color:'#fff',cursor:'pointer',alignSelf:'center'}},ip?'RESUME':'PAUSE'),e('div',{key:'rc',style:{display:'flex',gap:10,alignItems:'center'}},[e(CB,{key:'u',dir:{x:0,y:-1},sym:'▲'}),e(CB,{key:'d',dir:{x:0,y:1},sym:'▼'})])])])
+])}
+ReactDOM.createRoot(document.getElementById('root')).render(e(Game));
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
   </script>
 </body>
 </html>
