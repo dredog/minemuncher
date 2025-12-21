@@ -1,54 +1,48 @@
-# Mine Muncher v3 - PWA Installation Guide
+# Mine Muncher v3 - PWA with Ambient Music
 
-A Minecraft-themed Pac-Man game optimized for iPad landscape mode!
+A Minecraft-themed Pac-Man game for iPad with calm ambient background music!
 
-## New Features in v3
+## Features
 
-- **Controls at bottom-sides** - More natural hand positioning
-- **Press GO to start** each round/life - Better game flow
-- **Death notifications** with random messages when you lose a life
-- **10 Levels** with dragons appearing from Level 3
-- **Top 10 Leaderboard** with name entry
+- 🎵 **Ambient Music** - Calm, Minecraft-style procedural music
+- 📱 **iPad Optimized** - Landscape mode, touch controls
+- 🎮 **10 Levels** - Dragons appear from Level 3!
+- 🏆 **Leaderboard** - Top 10 scores saved locally
+- 📴 **Offline Play** - Works without internet
 
-## Level Progression
+## Music Controls
 
-- **Levels 1-2**: Very Easy (1 Villager)
-- **Level 3**: Easy (introduces Dragon!)
-- **Levels 4-5**: Easy-Medium (Villager + Enderman/Dragon)
-- **Level 6**: Medium (3 enemies including Dragon)
-- **Levels 7-8**: Hard (4-5 enemies)
-- **Levels 9-10**: Expert (multiple Dragons!)
-
-## Controls Layout
-
-```
-[GAME BOARD]
-
-◀ ▶          [PAUSE]         ▲ ▼
-(left hand)              (right hand)
-```
+- Tap 🔊/🔇 button to toggle music
+- Press M key on keyboard
+- Music auto-starts when you begin playing
 
 ## How to Install on iPad
 
-1. **Upload files** to GitHub Pages, Netlify, or Vercel
-2. **On iPad Safari**, visit your hosted URL
-3. Tap **Share** button → **Add to Home Screen**
-4. Launch from home screen for full-screen play!
+1. Upload all files to a web host (GitHub Pages, Netlify, Vercel)
+2. Open the URL in Safari on iPad
+3. Tap Share → "Add to Home Screen"
+4. Launch from home screen for full-screen experience!
 
-## Gameplay
+## Controls
 
-1. Select a starting level (1-10)
-2. Press **START** to begin
-3. Press **GO** to start each round
-4. Collect all emeralds while avoiding mobs
-5. If caught, you'll see a death message and press GO again
-6. Make the Top 10 to enter your name!
+- **Left hand**: ◀ LEFT, ▶ RIGHT
+- **Right hand**: ▲ UP, ▼ DOWN
+- **Swipe** anywhere to change direction
+- **GO button** starts each round
+- **P** or **ESC** to pause
 
-## Files Included
+## Scoring
 
-- `index.html` - Complete game
-- `manifest.json` - PWA config
-- `sw.js` - Service worker for offline play
+- 💎 Emerald: 10 pts
+- 🍎 Golden Apple: 50 pts + Power Mode
+- 👻 Eat scared mob: 200 pts
+- 🏆 Complete all levels: 1000 bonus
+
+## Files
+
+- `index.html` - Complete game with music
+- `manifest.json` - PWA configuration  
+- `sw.js` - Service worker for offline
 - `icon-192.png` / `icon-512.png` - App icons
 
-Enjoy! ⛏️🎮
+Enjoy! ⛏️🎮🎵
