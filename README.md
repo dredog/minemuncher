@@ -1,48 +1,92 @@
-# Mine Muncher v3 - PWA with Ambient Music
+# Mine Muncher - Minecraft Pac-Man Game
 
-A Minecraft-themed Pac-Man game for iPad with calm ambient background music!
+A fun Minecraft-themed Pac-Man game optimized for iPad!
 
-## Features
+## ⭐ Features
 
-- 🎵 **Ambient Music** - Calm, Minecraft-style procedural music
-- 📱 **iPad Optimized** - Landscape mode, touch controls
-- 🎮 **10 Levels** - Dragons appear from Level 3!
-- 🏆 **Leaderboard** - Top 10 scores saved locally
-- 📴 **Offline Play** - Works without internet
+- 🎵 **Background Music** - Calm Minecraft-style ambient music
+- 📱 **iPad Optimized** - Landscape mode with touch controls
+- 🎮 **10 Levels** - Easy to Expert difficulty
+- 🏆 **Leaderboard** - Top 10 high scores saved locally
+- 📴 **Works Offline** - Play without internet after first load!
+- 🎨 **3D Graphics** - Cool depth effects and shadows
 
-## Music Controls
+## 🎭 Characters
 
-- Tap 🔊/🔇 button to toggle music
-- Press M key on keyboard
-- Music auto-starts when you begin playing
+- **Steve** - You! Collect emeralds and avoid enemies
+- **👤 Villager** - Brown with BIG NOSE, moves slowly
+- **🟪 Enderman** - BLACK and THIN with glowing PURPLE eyes
+- **🐉 Dragon** - PURPLE with WINGS and HORNS, breathes fire!
 
-## How to Install on iPad
+## 📲 HOW TO INSTALL ON iPAD
 
-1. Upload all files to a web host (GitHub Pages, Netlify, Vercel)
-2. Open the URL in Safari on iPad
-3. Tap Share → "Add to Home Screen"
-4. Launch from home screen for full-screen experience!
+### Step 1: Host the Files
+Upload all files to a web server. Free options:
+- **GitHub Pages** (free): Create repo, upload files, enable Pages
+- **Netlify** (free): Drag & drop folder at netlify.com
+- **Your own server**: Just copy files to web directory
 
-## Controls
+### Step 2: Open in Safari on iPad
+1. Open **Safari** (must be Safari, not Chrome!)
+2. Go to your hosted URL (e.g., `https://yourusername.github.io/minemuncher/`)
+3. Wait for the game to fully load
 
-- **Left hand**: ◀ LEFT, ▶ RIGHT
-- **Right hand**: ▲ UP, ▼ DOWN
-- **Swipe** anywhere to change direction
-- **GO button** starts each round
-- **P** or **ESC** to pause
+### Step 3: Add to Home Screen
+1. Tap the **Share button** (square with arrow pointing up)
+2. Scroll down and tap **"Add to Home Screen"**
+3. Name it "Mine Muncher" and tap **Add**
 
-## Scoring
+### Step 4: Play!
+1. Find the Mine Muncher icon on your home screen
+2. Tap to launch - it opens fullscreen!
+3. Tap **🔇 SOUND OFF** button to turn on music!
+4. The game works offline after first load!
 
-- 💎 Emerald: 10 pts
-- 🍎 Golden Apple: 50 pts + Power Mode
-- 👻 Eat scared mob: 200 pts
-- 🏆 Complete all levels: 1000 bonus
+## 🎮 Controls
 
-## Files
+**Touch Controls:**
+- ◀ ▶ buttons on LEFT = move left/right
+- ▲ ▼ buttons on RIGHT = move up/down
+- Swipe anywhere to change direction
 
-- `index.html` - Complete game with music
-- `manifest.json` - PWA configuration  
-- `sw.js` - Service worker for offline
-- `icon-192.png` / `icon-512.png` - App icons
+**Keyboard (if available):**
+- Arrow keys or WASD to move
+- P to pause
+- M to toggle music
 
-Enjoy! ⛏️🎮🎵
+## 🎯 How to Play
+
+1. Tap **SOUND OFF** to turn on ambient music
+2. Select a starting level (1-10)
+3. Tap **START**
+4. Tap **GO** to begin each round
+5. Collect all green emeralds
+6. Avoid enemies (or eat them when they're blue!)
+7. Golden apples = POWER MODE (enemies turn blue)
+
+## 📁 Files Included
+
+- `index.html` - The complete game
+- `manifest.json` - PWA configuration
+- `sw.js` - Service worker for offline play
+- `icon-192.png` - Small app icon
+- `icon-512.png` - Large app icon
+- `README.md` - This file
+
+## 🔧 Troubleshooting
+
+**Sound not working?**
+- Tap the big SOUND button - it should turn green
+- Make sure your iPad isn't on silent mode
+- Try tapping the screen first, then the sound button
+
+**Won't install on home screen?**
+- Must use Safari browser (not Chrome/Firefox)
+- Make sure you're on HTTPS (secure connection)
+
+**Game not loading?**
+- Check your internet connection
+- Try refreshing the page
+- Clear Safari cache and try again
+
+Enjoy! ⛏️🎮
