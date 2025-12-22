@@ -1,12 +1,12 @@
 {
   "name": "Mine Muncher",
-  "short_name": "Mine Muncher",
+  "short_name": "MineMunch",
   "description": "A Minecraft-themed Pac-Man game",
   "start_url": "./index.html",
   "display": "standalone",
+  "orientation": "landscape",
   "background_color": "#1a0a1a",
   "theme_color": "#1a0a1a",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "icon-192.png",
@@ -20,6 +20,5 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "categories": ["games", "entertainment"]
+  ]
 }
